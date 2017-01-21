@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>App</title>
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="bootstrap.js"></script>
+	<script src="forerunner.js"></script>
+</head>
+<body>
+	<div id="a">
+		項目<input type="text" id="name" size="5" style="font-size:16px;margin:3px"><br>
+		日期<input type="text" id="ND" size="5" style="font-size:16px;margin:3px"><br>
+		金額<input type="text" id="money" size="5" style="font-size:16px;margin:3px"><br>
+		消費類別<select id="category" style="font-size:16px;margin:3px">
+   			<option value = "">請選擇項目</option>
+   			<option value = "飲食">飲食</option>
+   		</select><br>
+		<button type="button" id="new" class="btn btn-info" style="font-size:16px;margin:3px">
+			新增資料
+		</button><br>
+	</div>
+	<div id="b">
+		最近<input type="text" id="n" size="5" style="font-size:16px;margin:3px">筆<br>
+		<button type="button" id="findA" class="btn btn-info" style="font-size:16px;margin:3px">
+			查詢最近資料
+		</button><br>
+	</div>
+	<div id="c">
+		日期<input type="text" id="D" size="3" style="font-size:16px;margin:3px"><br>
+		<button type="button" id="findB" class="btn btn-info" style="font-size:16px;margin:3px">
+			查詢特定日期資料
+		</button>
+	</div>
+	<div id="d">
+		<button type="button" id="back" class="btn btn-info" style="font-size:16px;margin:3px">
+			回到主畫面
+		</button>
+	</div>
+	<table id="e">
+		<thead>
+            <tr>
+                <td>項目</td>
+                <td>日期</td>
+                <td>金額</td>
+                <td>消費類別</td>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+	</table>
+	<script language="javascript">
+		var fdb = new ForerunnerDB();
+		var db = fdb.db("money");
+		var moneyCollection = db.collection('money');
+		$('#new').on('click', addNewData);
+		$('#findA').on('click', findA);
+		$('#findB').on('click', findB);
+		$('#back').on('click', menu);
+		$('#d').hide();
+		$('#e').hide();
+		function addNewData(){
+			if ($('#name').val() != "" && $('#ND').val() != "" && $('#money').val() != "" && $('#category').val() != "") {
+				moneyCollection.insert({
+					id:moneyCollection.find().length,
+					name:$('#name').val(),
+					D:$('#ND').val(),
+					money:$('#money').val(),
+					category:$('#category').val()
+				})
+				console.log(true)
+			}
+		}
+		function createString(a,b,c,d) {
+			return "<tr><td>" + a + "</td><td>" + b + "</td><td>" + c + "</td><td>" + d + "</td></tr>"
+		}
+		function findA(){
+			var x = 0;
+			if ($('#n').val() != "") {
+				$('#a').hide();
+				$('#b').hide();
+				$('#c').hide();
+				$('#d').show();
+				$('#e').show();
+				for (var i = moneyCollection.find().length - $('#n').val(); i < moneyCollection.find().length; i++) {
+					x = moneyCollection.find({
+						id:i
+					})
+					console.log(x);
+					$("tbody").append(createString(x[0].name,x[0].D,x[0].money,x[0].category));
+				}
+			}
+		}
+		function findB(){
+			if ($('#D').val() != "") {
+				$('#a').hide();
+				$('#b').hide();
+				$('#c').hide();
+				$('#d').show();
+				$('#e').show();
+			}
+		}
+		function menu(){
+			$('#a').show();
+			$('#b').show();
+			$('#c').show();
+			$('#d').hide();
+			$('#e').hide();
+			$("tbody").text("");
+		}
+	</script>
+</body>
+</html>
