@@ -1,0 +1,4 @@
+[0204/164440.866:ERROR:process_reader_win.cc(142)] SuspendThread: 存取被拒。 (0x5)
+[0204/164440.879:ERROR:exception_snapshot_win.cc(87)] thread ID 7792 not found in process
+[0204/164440.880:WARNING:crash_report_exception_handler.cc(60)] ProcessSnapshotWin::Initialize failed
+[0204/164440.880:ERROR:scoped_process_suspend.cc(38)] NtResumeProcess: 嘗試存取現有的處理程序。  (0xc000010a)

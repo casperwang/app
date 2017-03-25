@@ -2,63 +2,72 @@
 <html>
 <head>
 	<title>App</title>
-	<script src="js/bootstrap.js"></script>
-	<script src="css/bootstrap.css"></script>
+	<meta charset="utf-8">
 	<script src="js/jquery-2.2.3.min.js"></script>
+	<script src="js/bootstrap.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="css/css.css">
 	<script src="js/forerunner.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 </head>
-<body>
+<body class="bg-info"><br>
 	<div id="a">
-		項目<input type="text" id="name" size="5" style="font-size:16px;margin:3px"><br>
-		日期<input type="text" id="ND" size="5" style="font-size:16px;margin:3px"><br>
-		金額<input type="text" id="money" size="5" style="font-size:16px;margin:3px"><br>
-		消費類別<select id="category" style="font-size:16px;margin:3px">
+		項目<input type="text" id="name"><br>
+		日期<input type="date" name="user_date" id="ND"><br>
+		金額<input type="text" id="money"><br>
+		消費類別<select id="category">
    			<option value = "">請選擇項目</option>
    			<option value = "飲食">飲食</option>
+   			<option value = "交通">交通</option>
+   			<option value = "學習">學習</option>
+   			<option value = "其他">其他</option>
    		</select><br>
-		<button type="button" id="new" class="btn btn-info" style="font-size:16px;margin:3px">
+		<button type="button" id="new" class="btn btn-info">
 			新增資料
 		</button><br>
 	</div>
-	<div id="b">
-		最近<input type="text" id="n" size="5" style="font-size:16px;margin:3px">筆<br>
-		<button type="button" id="findA" class="btn btn-info" style="font-size:16px;margin:3px">
-			查詢最近資料
-		</button><br>
-	</div>
-	<div id="c">
-		日期<input type="text" id="D" size="5" style="font-size:16px;margin:3px"><br>
-		<button type="button" id="findB" class="btn btn-info" style="font-size:16px;margin:3px">
-			查詢特定日期資料
-		</button>
-	</div>
-	<div id="d">
-		<button type="button" id="back" class="btn btn-info" style="font-size:16px;margin:3px">
+	<button type="button" id="find" class="btn btn-info">
+		支出查詢
+	</button>
+	<div id="findCost">
+		<button type="button" id="turnBack" class="btn btn-info">
 			回到主畫面
 		</button>
+		<div class = "radio">
+			<label><input type = "radio" name = "select" value = "findA" checked class = "radio">最近n筆資料</label>
+		</div>
+		最近<input type="number" name="points" id="n">筆<br>
+		<div class = "radio">
+			<label><input type = "radio" name = "select" value = "findB" class = "radio">查詢日期區間資料</label>
+		</div>
+		<input type="date" name="user_date" id="dS">～<input type="date" name="user_date" id="dF"><br>
+		<button type="button" id="findAll" class="btn btn-info">
+			查詢
+		</button>
+		<table id="e" class = "table">
+			<thead>
+	            <tr>
+	                <td>項目</td>
+	                <td>日期</td>
+	                <td>金額</td>
+	                <td>消費類別</td>
+	            </tr>
+	        </thead>
+	        <tbody>
+	        </tbody>
+		</table>
+		<canvas id="g" width="300" height="300"></canvas>
 	</div>
-	<table id="e">
-		<thead>
-            <tr>
-                <td>項目</td>
-                <td>日期</td>
-                <td>金額</td>
-                <td>消費類別</td>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-	</table>
 	<script language="javascript">
 		var fdb = new ForerunnerDB();
 		var db = fdb.db("money");
 		var moneyCollection = db.collection('money');
 		$('#new').on('click', addNewData);
-		$('#findA').on('click', findA);
-		$('#findB').on('click', findB);
-		$('#back').on('click', menu);
-		$('#d').hide();
+		$('#find').on('click', find);
+		$('#findAll').on('click', findAll);
+		$('#findCost').hide();
 		$('#e').hide();
+		$('#turnBack').on('click', menu);
 		function addNewData(){
 			if ($('#name').val() != "" && $('#ND').val() != "" && $('#money').val() != "" && $('#category').val() != "") {
 				moneyCollection.insert({
@@ -68,45 +77,138 @@
 					money:$('#money').val(),
 					category:$('#category').val()
 				})
-				console.log(true)
+				alert("儲存成功");
 			}
 		}
 		function createString(a,b,c,d) {
-			return "<tr><td>" + a + "</td><td>" + b + "</td><td>" + c + "</td><td>" + d + "</td></tr>"
+			return "<tr><td>" + a + "</td><td>" + b + "</td><td>" + c + "</td><td>" + d + "</td></tr>";
+		}
+		function find() {
+			$('#a').hide();
+			$('#find').hide();
+			$('#findCost').show();
+			$('#e').hide();
+		}
+		function findAll(){
+			$("tbody").text("");
+			if ($('input:radio:checked').val() == "findA") {
+				findA();
+				canvas("A");
+			} else if ($('input:radio:checked').val() == "findB") {
+				findB();
+				canvas("B");
+			}
 		}
 		function findA(){
 			var x = 0;
 			if ($('#n').val() != "") {
-				$('#a').hide();
-				$('#b').hide();
-				$('#c').hide();
-				$('#d').show();
 				$('#e').show();
-				for (var i = moneyCollection.find().length - $('#n').val(); i < moneyCollection.find().length; i++) {
-					x = moneyCollection.find({
-						id:i
-					})
-					console.log(x);
-					$("tbody").append(createString(x[0].name,x[0].D,x[0].money,x[0].category));
+				x = moneyCollection.find({
+					id: {
+						$gte: moneyCollection.find().length - $('#n').val(),
+						$lte: moneyCollection.find().length - 1
+					}
+				})
+				for (var i = 0; i < x.length; i++) {
+					$("#e tbody").append(createString(x[i].name,x[i].D,x[i].money,x[i].category));
 				}
 			}
 		}
 		function findB(){
-			if ($('#D').val() != "") {
-				$('#a').hide();
-				$('#b').hide();
-				$('#c').hide();
-				$('#d').show();
+			if ($('#dS').val() != "" && $('#dF').val() != "") {
 				$('#e').show();
+				x = moneyCollection.find({
+					D: {
+						$gte: $('#dS').val(),
+						$lte: $('#dF').val()
+					}
+				})
+				for (var i = 0; i < x.length; i++) {
+					$("#e tbody").append(createString(x[i].name,x[i].D,x[i].money,x[i].category));
+				}
 			}
 		}
 		function menu(){
 			$('#a').show();
-			$('#b').show();
-			$('#c').show();
-			$('#d').hide();
+			$('#find').show();
 			$('#e').hide();
+			$('#findCost').hide();
 			$("tbody").text("");
+		}
+		function canvas(X){
+			var canvas = document.getElementById("g");
+			if (canvas.getContext) {
+				var ctx = canvas.getContext("2d");
+				var k = 0;
+				ctx.fillStyle = "rgba(0, 0, 0, 1)";
+				ctx.fillRect = (0, 0, 300, 300);
+				for (var i = 1; i < $("#category option").length; i++) {
+					if (i == 1) {
+						ctx.fillStyle = "rgb(100, 50, 0)";
+					} else if (i == 2) {
+						ctx.fillStyle = "rgb(50, 100, 100)";
+					} else if (i == 3) {
+						ctx.fillStyle = "rgb(50, 0, 100)";
+					} else if (i == 4) {
+						ctx.fillStyle = "rgb(100, 100, 50)";
+					}
+					if (X == "A") {
+						for (var j = 0; j < moneyCollection.find({
+							category: $($("#category option")[i]).val(),
+							id: {
+								$gte: moneyCollection.find().length - $('#n').val(),
+								$lte: moneyCollection.find().length - 1
+							}
+						}).length; j++) {
+							ctx.beginPath();
+							ctx.arc(150, 150, 125, (Math.PI/180) * k * 360 / moneyCollection.find({id: {
+								$gte: moneyCollection.find().length - $('#n').val(),
+								$lte: moneyCollection.find().length - 1
+							}}).length, (Math.PI/180) * (k+1) * 360 / moneyCollection.find({id: {
+								$gte: moneyCollection.find().length - $('#n').val(),
+								$lte: moneyCollection.find().length - 1
+							}}).length, false);
+							ctx.arc(150, 150, 100, (Math.PI/180) * (k+1) * 360 / moneyCollection.find({id: {
+								$gte: moneyCollection.find().length - $('#n').val(),
+								$lte: moneyCollection.find().length - 1
+							}}).length, (Math.PI/180) * k * 360 / moneyCollection.find({id: {
+								$gte: moneyCollection.find().length - $('#n').val(),
+								$lte: moneyCollection.find().length - 1
+							}}).length, true);
+							k++;
+							ctx.fill();
+							ctx.closePath();
+						}
+					} else if (X == "B") {
+						for (var j = 0; j < moneyCollection.find({
+							category: $($("#category option")[i]).val(),
+							D: {
+								$gte: $('#dS').val(),
+								$lte: $('#dF').val()
+							}
+						}).length; j++) {
+							ctx.beginPath();
+							ctx.arc(150, 150, 125, (Math.PI/180) * k * 360 / moneyCollection.find({D: {
+								$gte: $('#dS').val(),
+								$lte: $('#dF').val()
+							}}).length, (Math.PI/180) * (k+1) * 360 / moneyCollection.find({D: {
+								$gte: $('#dS').val(),
+								$lte: $('#dF').val()
+							}}).length, false);
+							ctx.arc(150, 150, 100, (Math.PI/180) * (k+1) * 360 / moneyCollection.find({D: {
+								$gte: $('#dS').val(),
+								$lte: $('#dF').val()
+							}}).length, (Math.PI/180) * k * 360 / moneyCollection.find({D: {
+								$gte: $('#dS').val(),
+								$lte: $('#dF').val()
+							}}).length, true);
+							k++;
+							ctx.fill();
+							ctx.closePath();
+						}
+					}
+				}
+			}
 		}
 	</script>
 </body>

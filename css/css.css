@@ -1,0 +1,47 @@
+button{
+	font-size:24px;
+	margin:6px;
+	width: 80%;
+	height: 50px;
+}
+input:not([type="radio"]){
+	font-size:24px;
+	margin:6px;
+	width: 50%;
+	height: 40px;
+}
+input[type="radio"]{
+	height: 24px;
+}
+input#n{
+	width: 20%;
+	font-size:16px;
+}
+input#dS{
+	width: 35%;
+	font-size:16px;
+}
+input#dF{
+	width: 35%;
+	font-size:16px;
+}
+select{
+	font-size:24px;
+	margin:6px;
+	width: 38%;
+	height: 45px;
+}
+table{
+	font-size:16px;
+}
+body{
+	text-align: center;
+	font-family: DFKai-sb;
+	font-size:24px;
+}
+canvas{
+	margin:6px;
+}
+.btn{
+	font-size:24px;
+}
